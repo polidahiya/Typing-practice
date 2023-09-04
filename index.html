@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        min-height: 100dvh;
+        overflow-x: hidden;
+        margin: 0;
+        background: linear-gradient(
+          45deg,
+          rgb(255, 255, 93),
+          rgb(253, 111, 111)
+        );
+        background-repeat: no-repeat;
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+          sans-serif;
+      }
+      ::-webkit-scrollbar {
+        width: 0px;
+      }
+      .timer {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+      }
+      span {
+        font-size: 25px;
+      }
+      .pwith,
+      .showspeed {
+        height: 50px;
+        width: 100%;
+        display: grid;
+        font-size: 30px;
+
+        place-content: center;
+      }
+      .showspeed {
+        height: 50px;
+        width: 500px;
+        font-size: 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: auto;
+      }
+      .textarea {
+        padding: 5px;
+        min-height: 300px;
+        max-width: 100vw;
+        background-color: whitesmoke;
+        overflow-wrap: break-word;
+        filter: blur(2px);
+        letter-spacing: 3px;
+        border-radius: 10px;
+        margin: 0px 20px;
+        box-shadow: 6px 7px 17px 0px black;
+        position: relative;
+        cursor: pointer;
+        user-select: none;
+      }
+      .textareatag {
+        position: absolute;
+        top: 230px;
+        left: 50vw;
+        transform: translateX(-50%);
+        border-radius: 10px;
+        padding: 5px 20px;
+        font-size: 30px;
+        background-color: rgba(0, 255, 51, 0.527);
+        pointer-events: none;
+      }
+      .skip {
+        width: fit-content;
+        padding: 5px 15px;
+        margin-top: 30px;
+        margin-right: 20px;
+        border-radius: 30px;
+        border: 2px solid rgb(0, 0, 0);
+        float: right;
+        cursor: pointer;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="timer">00s</div>
+    <div class="pwith">Practice of letter 'A'</div>
+    <div class="showspeed">
+      <div class="wpm">WPM:00</div>
+      <div class="lpm">LPM:00</div>
+      <div class="error">ERRORS:00</div>
+    </div>
+    <div class="textarea"></div>
+    <div class="textareatag">Click here to start</div>
+    <div class="skip" onclick="skiptext()">Skip</div>
+    <script>
+      let textarea = document.querySelector(".textarea");
+      let pwith = document.querySelector(".pwith");
+      let isactive = false;
+      let timetaken = 0;
+      let errors = 0;
+      let practicedata = [
+        "Absolutely astonishingly, an abundance of amiable armadillos gathered around a fascinatingly azure oasis, alluringly attracting attention as awe and admiration arose among awe struck onlookers",
+        "An array of aromatic apples and apricots adorned adjacent arboreal areas, adding an appetizing aspect, while animated ants and agile aardvarks added to the already amusing atmosphere",
+        "Beneath the blissful blue sky, billions of brilliant birds embarked on a breathtaking journey, their melodious songs blending harmoniously. Butterflies danced and fluttered, their delicate wings creating a bewitching ballet of beauty. The babbling brooks bubbled along, bordered by beds of blooming wildflowers",
+        "Bwhile busy bees buzzed busily between blossoms, collecting bountiful baskets of nectar. The landscape seemed to burst with boundless life, as if the very essence of vitality had been bottled and poured generously over this bounteous land",
+        "Cascading clusters of candy colored confections created captivating chaos, captivating curious children and causing contagious celebrations. Countless cookies, cupcakes, and candies covered tables, creating a confectionery carnival complete",
+        "CThe cacophony of colors and commotion continued until the cozy crescent moon climbed to the center of the clear cerulean canvas, casting a calmness that gradually conquered the chaotic carnival",
+        "Did you ever discover a hidden, dazzling, diamond_filled cave deep within the dense, dark, daunting depths of a distant, dreamlike mountain The daunting journey demanded determination, daring, and dedication",
+        "Das danger dwelled in every direction. Driven by curiosity, adventurers delved deeply, determinedly deciphering cryptic clues, until, finally, a breathtakingly grand chamber adorned with countless, twinkling diamonds was revealed, dispelling doubts and delivering a truly extraordinary discovery",
+        "Eccentric elephants eagerly embarked on an elaborate expedition, exploring enigmatic environments, each encounter enhancing their exuberance. Every evening, they engaged in enthusiastic exchanges, employing eloquent expressions",
+        "Enthralled by the enchanting experiences, their energy seemed endless, exhibiting an electrifying enthusiasm that endeared them to all who encountered their extraordinary escapades",
+        "Fumbling, flustering, and floundering, Fredrick found himself frantically fumbling for a forgotten file filled with fascinating facts about fluffy felines. He furrowed his forehead, furiously flipping through folders",
+        "finally fingering the furtive folder featuring frivolous photographs of funny_looking frogs. His frustration further fueled his fervent search, forcing him to fumble through the formidable mess of forgotten fragments",
+        "Giddy giggles greet guests as they gaze upon a gargantuan garden growing with a myriad of greenery, guarded by gracious gargoyles. The gentle gusts of wind gently guide graceful butterflies, creating a mesmerizing and genuinely magical sight",
+        "As they glide further, the group's camaraderie grows, generating a sense of belonging and shared goals that gives them strength and courage. With each passing moment, they glimpse the grandeur of the universe",
+        "Huddled hastily in the hushed hollow of the haunted house, Harold the hesitant hare had his heart hammering heavily, haunted by hair raising hallucinations of hidden horrors lurking in every hallway. Hindered by his hyperactive imagination",
+        "he hesitated to hightail his way out, harboring the hope that daylight would hinder the haunting. However, as the hours hung on and the moon's hypnotic glow filled the horizon, Harold's anxiety heightened",
+        "Invisibility is indeed an intriguing ability. If I had it, I'd investigate its implications tirelessly. Imagine impressing individuals in important interactions, igniting imaginations in incredible ways. Innumerable instances of innovation and inspiration could emerge",
+        "It's undeniable that an invisible individual might initially indulge in impish inclinations, but ultimately, its impact could be immense, infiltrating industries, ideas, and information. However, idealistic inklings aside,",
+        "Jovial Jack the juggler joyfully juggled juicy, jiggly jello jars, justifying jaw dropping jubilation. Every jest, jump, and jive joined Jack's jubilant journey, jolting jubilant spectators into joyous jubilance",
+        "Jeliciting endless exclamations of jaw_flapping astonishment. Jack's jocularity juxtaposed with the jaw_dropping juggling, creating a jamboree of jumbled joy that jolted jaws and justified jesters' jeering",
+        "Kkkkayaking down the shimmering river, the adventurers marveled at the exquisite beauty of the surrounding nature. The tranquil sounds of water trickling through the lush vegetation and the occasional rustling of leaves created a sense of serenity that was truly unparalleled",
+        "KWith every paddle stroke, they could feel the connection between their kayaks and the liquid current beneath, a mesmerizing dance of kinetic energy. The kaleidoscope of colors above, where the canopies of trees kissed the sky",
+        "L In the land of Lilliput, where luscious lemon trees line labyrinthine lanes, the locals lead a life of leisurely luxury. Little lambs leap over low fences, while laughter lingers in the air like a lingering melody",
+        "Lively festivals filled with colorful balloons and playful parades are a frequent occurrence, creating a lively atmosphere that lulls you into a state of perpetual merriment. It's a place where time seems to slow down, and every little leaf seems to whisper secrets of love and longing",
+        "mesmerizing meadows of a mythical land, magnificent mountains majestically mingle with mist, creating a mystifying milieu. Mellow melodies of melodious birdsong mix with murmuring streams, making moments magical for myriad creatures",
+        "mesmerizing milieu, moments meander, marked by the movement of minutes. Marvelous manifestations of nature's might manifest in the form of multi colored flowers, miniature mammals, and moss-covered monoliths.",
+        "Nancy never noticed that not far from the nine nimble newts, a nocturnal ninja named Nathan navigated through the night, ninja stars neatly nestled next to his ninja nunchucks, navigating narrow neighborhoods unnoticed",
+        "Nearby, neon signs flickered and neonatal birds nested, nature's nocturnal symphony resonating in the moonlit night, nurturing a sense of tranquility that Nancy and Nigel cherished",
+        "Oodles of colorful balloons floated over the moonlit lagoon, forming a mesmerizing, otherworldly spectacle. The nocturnal owls hooted and cooed as they observed this odd occurrence from their cozy nooks. Onlookers",
+        "overcome with wonder, stood in a joyful, boisterous mood, capturing photos with their cameras, hoping to immortalize the once in a lifetime event. The orchestra played a melodic tune that echoed across the open meadow",
+        "Peculiarly, Peter the playful panda pranced proudly through a picturesque park, popping pink popcorn as passersby paused, perplexed. People pointed, partly puzzled, partly pleased, as Peter's penchant for performing preposterous pirouettes and perplexing",
+        "pranks provided palpable proof of his peculiar personality. Perhaps, perceiving public praise, Peter persistently pursued peculiar pastimes, positively promoting positivity, provoking puzzled pigeons, and propelling himself into a peculiarly prominent position among park patrons",
+        "Quincy quickly questioned the quaint quokka about its quirky quest to quench its quintessential quokka quenches. Quizzically, the quokka quoted a query, quivering with quiet quips and qualms, quite perplexed by the quandaries that",
+        "quizzical quasars presented. With a quirky quiver in its voice, the quokka quietly conveyed its quizzing of quantum quantities, hoping for a qualified quorum of answers to satisfy its questing curiosity",
+        "Raindrops raced rapidly down the rugged and rocky terrain, creating rivulets that meandered through the richly green underbrush, while rustling leaves resonated with the rhythmic rustle caused by the",
+        "relentless rush of the wind. Birds perched on branches responded with rapid rhapsodies, their raucous calls resonating in a riot of sound, rendering the tranquil forest into a realm of raucous and riotous rejoicing",
+        "serene solitude of a secluded seaside sanctuary, the soft susurrus of the sea's ceaseless surf created a soothing symphony. Seagulls soared skillfully above, their sharp calls slicing through the salty air. Shells of various shapes and sizes adorned the shore",
+        "shimmering like scattered stars in the sand. Sunlight streamed seamlessly, casting a sparkling, silvery sheen upon the surface of the undulating waves. Sandy dunes, sculpted by the wind's subtle strokes, stood sentinel, shielding the secrets of the shoreline",
+        "Tremendous trees tower tall towards the tranquil twilight, their twisting trunks tracing tales told through time. Tiny twinkling stars twinkle and twirl, tracing their trajectories through the tapestry of the vast, timeless tenebrous tapestry",
+        "The tranquil trickle of a trickling stream tempers the tension, transporting those that take time to tarry by its tranquil shores to a truly tranquil state. Truly, the terrain teems with tales that tantalize the thoughts",
+        "Usually, when the sun rises, it ushers in a beautiful and unforgettable day full of opportunities for unimaginable adventures under the sky's vast blue canvas. You might find yourself drawn to the unique charm of nature's awakening",
+        "uncovering hidden facets of your personality that yearn to flourish like ublossoms in spring. So, seize the day with a heart brimming with unwavering optimism, and let the world witness the radiant universe that dwells within you",
+        "Veronica's venture led her through a labyrinth of vines, where the vibrant vegetation seemed to vibrate with vitality. Her vision veered towards the vast vista, a valley of vibrant colors that varied from velvety violets to vivid yellows. The very air seemed to vibrate with a sense of adventure, as if the",
+        "very essence of the valley was infused with her voracious spirit. With each step, she seemed to be unraveling the veil of nature's secrets, as if the valley itself was unveiling its hidden treasures to her. Her journey was a symphony of verbs,",
+        "Wow, while walking through the whimsical willow woods on a windy Wednesday, I witnessed a wild and wondrous waterfall, where water was weaving its way, creating a mesmerizing whirlwind of white waves while whispering whimsical words that echoed with the wisdom of ages past",
+        "whole scene seemed like a whimsy_filled wonderland where time itself was wrapped in a cocoon of wistfulness. As the sun started its descent, casting warm hues across the landscape, the water's reflective surface turned into a canvas of wavering light",
+        "Xander, the extravagant xenophile from the distant planet Xylor, exhibited an extraordinary fixation for perplexing xenoglossy and perplexed the xenobiologists with his unexplainable ability to decipher the complex and enigmatic languages of various alien species",
+        "xenodochial nature endeared him to the xenial inhabitants of Earth, where he embarked on a perplexingly ambitious expedition to explore the extremities of the unexplored xenosphere, hoping to uncover the secrets of the enigmatic xenotime crystals",
+        "Yesterday, beneath the sun's yellow rays, a whimsical yak named Yolanda yodeled yearningly, yanking your yoyo with youthful yet yearning yelps, yielding yoyos yoyoing yayingly, creating a yesteryear's yeti_like yet yyltimately youthful yet yupbeat atmosphere",
+        "YAmidst this youthful yakyak fest, curious onlookers joined in with yells of delight, embracing the yyes of a carefree yesterday and yearning for more of Yolanda's yodeling yadventures",
+        "Ziggy the zany zebra zealously zigzags through the zoo's zoological zone, zooming past zealous zookeepers, mesmerized visitors, and dozens of dazed ducks, leaving a trail of zigzagged z's in its exuberant wake",
+        "Z The dazzling display of zigzags creates a whimsical and dizzying spectacle that has everyone in the zoo buzzing with amazement and a touch of zany zest for the zebra's zestful zest for zigzagging",
+      ];
+      //
+      let data2;
+      let cursorplace;
+      let firstletter;
+      let dataarr;
+      let allspan;
+      //calc speed
+      let totalletters = 0;
+      let totalwords = 0;
+
+      function maketext() {
+        textarea.innerHTML = "";
+        data2 = practicedata[Math.floor(Math.random() * practicedata.length)]
+          .split(" ")
+          .join("_");
+        firstletter = data2[0].toUpperCase();
+        pwith.innerHTML = "Practice of letter '" + firstletter + "'";
+        dataarr = data2.split("");
+        totalletters = dataarr.length;
+        totalwords = data2.split("_").length;
+        for (let i = 0; i < dataarr.length; i++) {
+          textarea.innerHTML += "<span>" + dataarr[i] + "</span>";
+        }
+        allspan = document.querySelectorAll("span");
+        cursorplace = 0;
+      }
+      maketext();
+      // event listner
+      document.body.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        if (isactive) {
+          if (e.key == "Backspace") {
+            allspan.forEach((item, index) => {
+              if (index + 1 == cursorplace) {
+                item.style.color = "black";
+              }
+            });
+            if (cursorplace > 0) {
+              cursorplace--;
+            }
+          } else {
+            if (
+              e.key == dataarr[cursorplace].toLowerCase() ||
+              (e.key == " " && dataarr[cursorplace] == "_")
+            ) {
+              allspan.forEach((item, index) => {
+                if (index == cursorplace) {
+                  item.style.color = "rgb(20, 205, 0)";
+                }
+              });
+              cursorplace++;
+              if (cursorplace == dataarr.length) {
+                maketext();
+                setvalues();
+                skiptext();
+              }
+            } else {
+              allspan.forEach((item, index) => {
+                if (index == cursorplace) {
+                  item.style.color = "red";
+                  errors++;
+                }
+              });
+              cursorplace++;
+              if (cursorplace == dataarr.length) {
+                maketext();
+                setvalues();
+                skiptext();
+              }
+            }
+          }
+        }
+      });
+      //   blur and unblur
+      function blurandunblur(value) {
+        if (value) {
+          textarea.style = "filter: blur(0px);";
+          isactive = true;
+        } else {
+          textarea.style = "filter: blur(2px);";
+        }
+      }
+      textarea.addEventListener("click", () => {
+        document.querySelector(".textareatag").style.display = "none";
+        blurandunblur(true);
+        settimer();
+        isblur = false;
+      });
+      // settimer
+      let isblur = true;
+      let timer;
+      function settimer() {
+        if (isactive && isblur) {
+          timer = setInterval(() => {
+            timetaken += 1;
+            if (timetaken < 10) {
+              document.querySelector(".timer").innerHTML =
+                "0" + timetaken + "s";
+            } else {
+              if(timetaken>59){
+                if(timetaken%60<10){
+                  document.querySelector(".timer").innerHTML = Math.floor(timetaken/60)  + "m 0"+timetaken%60 +"s";
+                }else{
+                  document.querySelector(".timer").innerHTML = Math.floor(timetaken/60)  + "m "+timetaken%60 +"s";
+                }
+              }else{
+                document.querySelector(".timer").innerHTML = timetaken + "s";
+              }
+            }
+          }, 1000);
+        }
+      }
+      // update values
+      function setvalues() {
+        console.log(totalwords);
+        document.querySelector(".wpm").innerHTML =
+          "WPM:" + Math.floor(totalwords / (timetaken / 60));
+        document.querySelector(".lpm").innerHTML =
+          "LPM:" + Math.floor(totalletters / (timetaken / 60));
+        document.querySelector(".error").innerHTML = "ERRORS:" + errors;
+      }
+      // skip
+      function skiptext() {
+        isblur = true;
+        isactive = false;
+        clearInterval(timer);
+        blurandunblur(false);
+        document.querySelector(".timer").innerHTML = "00s";
+        maketext();
+        timetaken = 0;
+        errors = 0;
+        document.querySelector(".textareatag").style.display = "block";
+      }
+    </script>
+  </body>
+</html>
+<!-- moving cursor,punctuation,non practice mode -->
